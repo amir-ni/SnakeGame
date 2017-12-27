@@ -1,11 +1,10 @@
-import java.awt.Color;
-import java.awt.GridLayout;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.net.URL;
 import java.util.Scanner;
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.ImageIcon;
@@ -31,19 +30,21 @@ public class Snake extends JFrame implements KeyListener {
 		//setUndecorated(true);
         this.level = level;
         try {
-            ImageIcon img = new ImageIcon("icon.png");
+			URL gameicon = new URL("https://raw.githubusercontent.com/amir-ni/SnakeGame/master/icon.png");
+			Image imgc = ImageIO.read(gameicon);
+			ImageIcon img = new ImageIcon(imgc);
             this.setIconImage(img.getImage());
-            File tmpDir = new File("level"+ level +".txt");
-            if(tmpDir.exists()) {
-                Scanner scanner = new Scanner(tmpDir);
-                int i = 0;
-                this.size = scanner.nextInt();
-                while (scanner.hasNextInt()) {
-                    obstacles[i][0] = scanner.nextInt();
-                    obstacles[i][1] = scanner.nextInt();
-                    i++;
-                }
-            }
+			URL levelURL = new URL("https://raw.githubusercontent.com/amir-ni/SnakeGame/master/levels/level"+ level +".txt");
+			BufferedReader in = new BufferedReader(new InputStreamReader(levelURL.openStream()));
+			String inputLine;
+			this.size = Integer.parseInt(in.readLine());
+			int i = 0;
+			while ((inputLine = in.readLine()) != null) {
+				obstacles[i][0] = Integer.parseInt(inputLine.split(" ")[0]);
+				obstacles[i][1] = Integer.parseInt(inputLine.split(" ")[1]);
+				i++;
+			}
+			in.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -3,6 +3,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Vector;
 import javax.imageio.ImageIO;
@@ -16,31 +17,21 @@ public class Main {
 		try {
 			URL gameicon = new URL("https://raw.githubusercontent.com/amir-ni/SnakeGame/master/icon.png");
 			Image imgc = ImageIO.read(gameicon);
-
+			ImageIcon img = new ImageIcon(imgc);
 			String Name = JOptionPane.showInputDialog(null,"Please enter your name : ",
 					"Name",JOptionPane.QUESTION_MESSAGE);
 			Vector<String> levels = new Vector<>();
-			URL level = new URL("https://raw.githubusercontent.com/amir-ni/SnakeGame/master/levels/");
-			BufferedReader in = new BufferedReader(
-					new InputStreamReader(level.openStream()));
 
-			String inputLine;
-			while ((inputLine = in.readLine()) != null)
-				System.out.println(inputLine);
-			in.close();
-			//File curDir = new File(".");
-			//File[] list = curDir.listFiles();
-			//if(list!=null) {
-			//	for (File fil : list) {
-
-			//		if (fil.getName().matches("level\\d.txt")) {
-			//			levels.add("Level "+fil.getName().substring(5,fil.getName().length()- 4));
-			//		}
-			//	}
-			//}
-
-
-			ImageIcon img = new ImageIcon(imgc);
+			URL levelURL;
+			String levelsURL = "https://raw.githubusercontent.com/amir-ni/SnakeGame/master/levels/";
+			for(int z=1;;z++) {
+				levelURL = new URL(levelsURL + "level"+ z +".txt");
+				HttpURLConnection huc = (HttpURLConnection) levelURL.openConnection();
+				if(404 == huc.getResponseCode())
+					break;
+				else
+					levels.add("Level " + z);
+			}
 			String level = (String) JOptionPane.showInputDialog(null,"Which level do you want to enter : " ,
 					"Level", JOptionPane.QUESTION_MESSAGE, img, levels.toArray(),levels.toArray()[0]);
 
