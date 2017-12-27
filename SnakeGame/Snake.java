@@ -3,7 +3,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.*;
 import java.net.URL;
-import java.util.Scanner;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -27,7 +26,6 @@ public class Snake extends JFrame implements KeyListener {
 	private Thread thread;
 
 	public Snake(String name,int level) {
-		//setUndecorated(true);
         this.level = level;
         try {
 			URL gameicon = new URL("https://raw.githubusercontent.com/amir-ni/SnakeGame/master/icon.png");
@@ -126,7 +124,6 @@ public class Snake extends JFrame implements KeyListener {
 		}else if (direction == 'l') {
 			xsnake--;
 		}
-		//for(int i=0;i<)
 		if (pixel[xsnake][ysnake].getLength() > 1 || xsnake == 0 || xsnake == (size-1) || ysnake == 0 || ysnake == (size-1)) {
 			collision();
 		}else if (pixel[xsnake][ysnake].isApple()) {
