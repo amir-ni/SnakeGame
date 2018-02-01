@@ -2,16 +2,17 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.*;
+import java.net.Socket;
 import java.net.URL;
+import java.util.ArrayList;
 import javax.imageio.ImageIO;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.ImageIcon;
+import javax.swing.*;
 
-public class Snake extends JFrame implements KeyListener {
+public class GameLayout extends JPanel implements KeyListener {
 	private GamePixel[][] pixel;
-    int[][] obstacles = new int[100][2];
-	private final Color worm = new Color(0,180,0);
+    ArrayList<Integer> obstacles = new ArrayList<>();
+
+    private final Color worm = new Color(80,80,255);
 	private char direction = 'r';
 	private char bufdir = ' ';
 	private int length;
@@ -24,36 +25,43 @@ public class Snake extends JFrame implements KeyListener {
     private int loseDelay = 2000;
     private boolean lost = false;
 	private Thread thread;
+    Socket mSocket;
+    int port = 9090;
+    String serverAddress = "127.0.0.1";
+    InputStream fromServerStream;
+    OutputStream toServerStream;
+    DataInputStream reader;
+    PrintWriter writer;
 
-	public Snake(String name,int level) {
+	public GameLayout(String name, int level) {
         this.level = level;
+
         try {
-			URL gameicon = new URL("https://raw.githubusercontent.com/amir-ni/SnakeGame/master/icon.png");
-			Image imgc = ImageIO.read(gameicon);
-			ImageIcon img = new ImageIcon(imgc);
-            this.setIconImage(img.getImage());
-			URL levelURL = new URL("https://raw.githubusercontent.com/amir-ni/SnakeGame/master/levels/level"+ level +".txt");
-			BufferedReader in = new BufferedReader(new InputStreamReader(levelURL.openStream()));
+            mSocket = new Socket(serverAddress, port);
+            fromServerStream = mSocket.getInputStream();
+            toServerStream = mSocket.getOutputStream();
+            reader = new DataInputStream(fromServerStream);
+            writer = new PrintWriter(toServerStream, true);
+            writer.println("getLevel");
+            writer.println(level);
 			String inputLine;
-			this.size = Integer.parseInt(in.readLine());
-			int i = 0;
-			while ((inputLine = in.readLine()) != null) {
-				obstacles[i][0] = Integer.parseInt(inputLine.split(" ")[0]);
-				obstacles[i][1] = Integer.parseInt(inputLine.split(" ")[1]);
-				i++;
-			}
-			in.close();
+			this.size = Integer.parseInt(reader.readLine());
+			for (String line = reader.readLine(); !line.equals("Done"); line = reader.readLine()) {
+                obstacles.add(Integer.parseInt(line.split(" ")[0]));
+                obstacles.add(Integer.parseInt(line.split(" ")[1]));
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
-	    this.name = name;
+
+        this.name = name;
 		pixel = new GamePixel[size][size];
 		this.setSize((size*10),(size*10));
-		this.setResizable(false);
 		this.setLayout(new GridLayout(size,size));
-		this.setTitle("Snake game");
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+
 		addKeyListener(this);
+
 		length = 2;
 		xsnake = 20;
 		ysnake = 5;
@@ -62,18 +70,19 @@ public class Snake extends JFrame implements KeyListener {
 			for (int i = 0;i < size;i++) {
 				pixel[i][j] = new GamePixel();
 				if(i == 0 || i == (size-1) || j == 0 || j == (size-1)) {
-					pixel[i][j].setBackground(Color.gray);
+					pixel[i][j].setBackground(Color.DARK_GRAY);
 				}else {
-					pixel[i][j].setBackground(Color.black);
+					pixel[i][j].setBackground(Color.green);
 				}
 				this.add(pixel[i][j]);
 			}
 		}
-        for(int j = 0;j < obstacles.length;j++) {
-            pixel[obstacles[j][0]][obstacles[j][1]].setBackground(Color.gray);
+
+		for(int i=0;i<obstacles.size();i+=2){
+            pixel[obstacles.get(i)][obstacles.get(i+1)].setBackground(Color.DARK_GRAY);
         }
-		startWorm();
-		this.setVisible(true);
+        startWorm();
+        this.setVisible(true);
 		startMovement();
 		makeApple();
 	}
@@ -130,11 +139,8 @@ public class Snake extends JFrame implements KeyListener {
 			length++;
 			pixel[xsnake][ysnake].setApple(false);
 			makeApple();
-		}
-        for(int j = 0;j < obstacles.length;j++) {
-            if(obstacles[j][0]==xsnake && obstacles[j][1]==ysnake){
-                collision();
-            }
+		}else if(pixel[xsnake][ysnake].getBackground() == Color.DARK_GRAY){
+            collision();
         }
 
 		pixel[xsnake][ysnake].setLength(length + 1);
@@ -144,7 +150,7 @@ public class Snake extends JFrame implements KeyListener {
         for (int j = 0;j < (size);j++) {
             for (int i = 0;i < (size);i++) {
                 if(((i+j)%2)==1) {
-                    pixel[i][j].setBackground(Color.black);
+                    pixel[i][j].setBackground(Color.BLACK);
                 }else{
                     pixel[i][j].setBackground(Color.RED);
                 }
@@ -155,15 +161,7 @@ public class Snake extends JFrame implements KeyListener {
                 e.printStackTrace();
             }
         }
-        JOptionPane.showMessageDialog(null, name + " : " + (length-2), "Your score" , JOptionPane.INFORMATION_MESSAGE);
-        try{
-            File tmpDir = new File("scores.txt");
-            FileWriter fw = new FileWriter(tmpDir,true);
-            fw.write("name : " + this.name + " , score : " + (this.length-2) + " , level : " + this.level +"\n");
-            fw.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        new ScoreSubmitter((this.length-2),this.level,this.name);
         System.exit(0);
 	}
     private void iterateSnake() {
@@ -176,19 +174,16 @@ public class Snake extends JFrame implements KeyListener {
 					pixel[i][j].setBackground(worm);
 				}else if (pixel[i][j].isApple()) {
 					pixel[i][j].setBackground(Color.red);
-				}else {
-					pixel[i][j].setBackground(Color.black);
-				}
+				}else if(pixel[i][j].getBackground() != Color.DARK_GRAY){
+                    pixel[i][j].setBackground(Color.green);
+                }
 			}
 		}
-        for(int j = 0;j < obstacles.length;j++) {
-            pixel[obstacles[j][0]][obstacles[j][1]].setBackground(Color.gray);
-        }
 	}
     private void makeApple() {
 		int x = (int) Math.round( ( Math.random() ) * (size-2)) + 1;
 		int y = (int) Math.round( ( Math.random() ) * (size-2)) + 1;
-		if (pixel[x][y].getLength() > 0 || pixel[x][y].getBackground() == Color.gray) {
+		if (pixel[x][y].getLength() > 0 || pixel[x][y].getBackground() == Color.DARK_GRAY) {
 			makeApple();
 		}else {
 			pixel[x][y].setApple(true);
