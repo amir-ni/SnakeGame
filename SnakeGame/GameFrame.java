@@ -10,13 +10,13 @@ import javax.swing.*;
 public class GameFrame extends JFrame {
 
 
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
+    private javax.swing.JButton endButton;
+    private javax.swing.JButton scoreButton;
+    private javax.swing.JLabel nameLabel;
+    private javax.swing.JLabel levelLabel;
     private GameLayout jPanel1;
-    private javax.swing.JLabel jTextField1;
-    private javax.swing.JLabel jTextField2;
+    private javax.swing.JLabel levelValueLabel;
+    private javax.swing.JLabel nameValueLabel;
     private String HighestScore;
     public void CloseFrame(){
         super.dispose();
@@ -69,29 +69,35 @@ public class GameFrame extends JFrame {
         this.setTitle("SnakeGame");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         GameLayout jPanel1 = new GameLayout(name,level);
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jTextField1 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
+        endButton = new javax.swing.JButton();
+        scoreButton = new javax.swing.JButton();
+        levelValueLabel = new javax.swing.JLabel();
+        nameValueLabel = new javax.swing.JLabel();
+        nameLabel = new javax.swing.JLabel();
+        levelLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         jPanel1.setBackground(new java.awt.Color(204, 153, 0));
         jPanel1.setForeground(new java.awt.Color(204, 255, 102));
 
-        jButton1.setText("Exit");
-        jButton1.addActionListener(new ActionListener() {
+        endButton.setBackground(new Color(59, 89, 182));
+        endButton.setForeground(Color.WHITE);
+        endButton.setFocusPainted(false);
+        endButton.setFont(new Font("Tahoma", Font.BOLD, 12));
+        endButton.setText("End");
+        endButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                //call another method in the same class which will close this Jframe
-                CloseFrame();
+                jPanel1.collision();
             }
         });
 
 
-        jButton2.setText("High scores");
-
-        jButton2.addActionListener(new ActionListener() {
+        scoreButton.setText("High scores");
+        scoreButton.setBackground(new Color(59, 89, 182));
+        scoreButton.setForeground(Color.WHITE);
+        scoreButton.setFocusPainted(false);
+        scoreButton.setFont(new Font("Tahoma", Font.BOLD, 12));
+        scoreButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 //call another method in the same class which will close this Jframe
                 JOptionPane.showMessageDialog(null, HighestScore(), "Your score" , JOptionPane.INFORMATION_MESSAGE);
@@ -101,13 +107,22 @@ public class GameFrame extends JFrame {
             }
         });
 
-        jTextField1.setText(Integer.toString(level));
+        nameLabel.setText("Name : ");
+        nameLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
+        nameLabel.setForeground(new Color(59, 89, 182));
 
-        jTextField2.setText(name);
+        nameValueLabel.setText(name);
+        nameValueLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
+        nameValueLabel.setForeground(new Color(59, 89, 182));
 
-        jLabel1.setText("Name : ");
+        levelLabel.setText("Level : ");
+        levelLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
+        levelLabel.setForeground(new Color(59, 89, 182));
 
-        jLabel2.setText("Level : ");
+        levelValueLabel.setText(Integer.toString(level));
+        levelValueLabel.setFont(new Font("Tahoma", Font.BOLD, 12));
+        levelValueLabel.setForeground(new Color(59, 89, 182));
+
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -117,17 +132,17 @@ public class GameFrame extends JFrame {
                                 .addContainerGap()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addGroup(layout.createSequentialGroup()
-                                                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(endButton, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(scoreButton, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 107, Short.MAX_VALUE)
-                                                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(levelLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(levelValueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(nameLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addComponent(nameValueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                 .addGap(36, 36, 36))
                                         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -139,17 +154,16 @@ public class GameFrame extends JFrame {
                         .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                                 .addGap(32, 32, 32)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(jLabel1)
-                                        .addComponent(jLabel2))
+                                        .addComponent(scoreButton, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(endButton, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(levelValueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(nameValueLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(nameLabel)
+                                        .addComponent(levelLabel))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addContainerGap())
         );
-
         pack();
         this.setResizable(false);
         jPanel1.setFocusable(true);

@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Socket;
 import java.net.URL;
@@ -12,7 +13,7 @@ public class GameLayout extends JPanel implements KeyListener {
 	private GamePixel[][] pixel;
     ArrayList<Integer> obstacles = new ArrayList<>();
 
-    private final Color worm = new Color(80,80,255);
+    private final Color worm = new Color(139, 61, 12);
 	private char direction = 'r';
 	private char bufdir = ' ';
 	private int length;
@@ -25,6 +26,7 @@ public class GameLayout extends JPanel implements KeyListener {
     private int loseDelay = 2000;
     private boolean lost = false;
 	private Thread thread;
+	private int startLengh;
     Socket mSocket;
     int port = 9090;
     String serverAddress = "127.0.0.1";
@@ -32,10 +34,43 @@ public class GameLayout extends JPanel implements KeyListener {
     OutputStream toServerStream;
     DataInputStream reader;
     PrintWriter writer;
+    JLabel apple = new JLabel();
+
+    public class trap extends JLabel{
+    	trap(){
+			Dimension newDim = new Dimension(40, 40);
+			this.setMaximumSize(newDim);
+			this.setPreferredSize(newDim);
+			this.setMaximumSize(newDim);
+			this.setSize(newDim);
+
+			try {
+				BufferedImage image = ImageIO.read(new File("resources/images/trap.png"));
+				Image dimg = image.getScaledInstance(40, 40,
+						Image.SCALE_SMOOTH);
+				this.setIcon(new ImageIcon(dimg));
+			}catch (Exception e){
+				System.out.println(e.getMessage());
+			}
+
+		}
+	}
 
 	public GameLayout(String name, int level) {
         this.level = level;
-
+		Dimension newDim = new Dimension(40, 40);
+        try {
+			apple.setMaximumSize(newDim);
+			apple.setPreferredSize(newDim);
+			apple.setMaximumSize(newDim);
+			apple.setSize(newDim);
+			BufferedImage image = ImageIO.read(new File("resources/images/apple.png"));
+			Image dimg = image.getScaledInstance(40, 40,
+					Image.SCALE_SMOOTH);
+			apple.setIcon(new ImageIcon(dimg));
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
         try {
             mSocket = new Socket(serverAddress, port);
             fromServerStream = mSocket.getInputStream();
@@ -44,8 +79,11 @@ public class GameLayout extends JPanel implements KeyListener {
             writer = new PrintWriter(toServerStream, true);
             writer.println("getLevel");
             writer.println(level);
-			String inputLine;
 			this.size = Integer.parseInt(reader.readLine());
+            this.startLengh = Integer.parseInt(reader.readLine());
+            String inputLine = reader.readLine();
+            xsnake = Integer.parseInt(inputLine.split(" ")[0]);
+            ysnake = Integer.parseInt(inputLine.split(" ")[1]);
 			for (String line = reader.readLine(); !line.equals("Done"); line = reader.readLine()) {
                 obstacles.add(Integer.parseInt(line.split(" ")[0]));
                 obstacles.add(Integer.parseInt(line.split(" ")[1]));
@@ -62,13 +100,17 @@ public class GameLayout extends JPanel implements KeyListener {
 
 		addKeyListener(this);
 
-		length = 2;
-		xsnake = 20;
-		ysnake = 5;
+		length = startLengh;
+
 
 		for(int j = 0;j < size;j++) {
 			for (int i = 0;i < size;i++) {
 				pixel[i][j] = new GamePixel();
+				pixel[i][j].setMaximumSize(newDim);
+				pixel[i][j].setPreferredSize(newDim);
+				pixel[i][j].setMinimumSize(newDim);
+				pixel[i][j].setSize(newDim);
+				pixel[i][j].revalidate();
 				if(i == 0 || i == (size-1) || j == 0 || j == (size-1)) {
 					pixel[i][j].setBackground(Color.DARK_GRAY);
 				}else {
@@ -79,7 +121,8 @@ public class GameLayout extends JPanel implements KeyListener {
 		}
 
 		for(int i=0;i<obstacles.size();i+=2){
-            pixel[obstacles.get(i)][obstacles.get(i+1)].setBackground(Color.DARK_GRAY);
+            pixel[obstacles.get(i)][obstacles.get(i+1)].add(new trap());
+			pixel[obstacles.get(i)][obstacles.get(i+1)].isObstacle = true;
         }
         startWorm();
         this.setVisible(true);
@@ -123,7 +166,7 @@ public class GameLayout extends JPanel implements KeyListener {
 	public void keyTyped(KeyEvent e) {
 
 	}
-    private void moveSnake() {
+    private synchronized void moveSnake() {
 		if (direction == 'u'){
 			ysnake--;
 		}else if (direction == 'd') {
@@ -139,13 +182,13 @@ public class GameLayout extends JPanel implements KeyListener {
 			length++;
 			pixel[xsnake][ysnake].setApple(false);
 			makeApple();
-		}else if(pixel[xsnake][ysnake].getBackground() == Color.DARK_GRAY){
+		}else if(pixel[xsnake][ysnake].isObstacle){
             collision();
         }
 
 		pixel[xsnake][ysnake].setLength(length + 1);
 	}
-    private void collision() {
+    public void collision() {
 	    lost = true;
         for (int j = 0;j < (size);j++) {
             for (int i = 0;i < (size);i++) {
@@ -161,7 +204,7 @@ public class GameLayout extends JPanel implements KeyListener {
                 e.printStackTrace();
             }
         }
-        new ScoreSubmitter((this.length-2),this.level,this.name);
+        new ScoreSubmitter((this.length-startLengh),this.level,this.name);
         System.exit(0);
 	}
     private void iterateSnake() {
@@ -173,20 +216,30 @@ public class GameLayout extends JPanel implements KeyListener {
 				if(pixel[i][j].getLength() > 0) {
 					pixel[i][j].setBackground(worm);
 				}else if (pixel[i][j].isApple()) {
-					pixel[i][j].setBackground(Color.red);
-				}else if(pixel[i][j].getBackground() != Color.DARK_GRAY){
-                    pixel[i][j].setBackground(Color.green);
-                }
+					if(((i+j)%2)==1) {
+						pixel[i][j].setBackground(new Color(76, 140, 19));
+					}else{
+						pixel[i][j].setBackground(new Color(7, 140, 59));
+					}
+				}else if(((i+j)%2)==1) {
+                        pixel[i][j].setBackground(new Color(76, 139, 19));
+                    }else{
+                        pixel[i][j].setBackground(new Color(7, 139, 59));
+                    }
 			}
 		}
+		pixel[xsnake][ysnake].setBackground(Color.WHITE);
 	}
+
     private void makeApple() {
 		int x = (int) Math.round( ( Math.random() ) * (size-2)) + 1;
 		int y = (int) Math.round( ( Math.random() ) * (size-2)) + 1;
-		if (pixel[x][y].getLength() > 0 || pixel[x][y].getBackground() == Color.DARK_GRAY) {
+		if (pixel[x][y].getLength() > 0 || pixel[x][y].getBackground() == Color.DARK_GRAY ||pixel[x][y].isObstacle) {
 			makeApple();
 		}else {
 			pixel[x][y].setApple(true);
+			pixel[x][y].add(apple);
+			System.out.println(x+ " " + y);
 		}
 	}
 

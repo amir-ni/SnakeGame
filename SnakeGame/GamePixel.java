@@ -4,7 +4,8 @@ import javax.swing.JPanel;
 public class GamePixel extends JPanel {
 	private int length;
 	private boolean apple;
-	
+	public boolean isObstacle = false;
+
 	public GamePixel() {
 		length = 0;
 		apple = false;

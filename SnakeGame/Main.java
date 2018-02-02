@@ -6,7 +6,10 @@ import javax.swing.JOptionPane;
 
 public class Main {
 
-
+	public static String getName(){
+		return JOptionPane.showInputDialog(null,"Please enter your name : ",
+				"Name",JOptionPane.QUESTION_MESSAGE);
+	}
 	public static void main(String[] args) {
 		Socket mSocket;
 		int port = 9090;
@@ -18,8 +21,11 @@ public class Main {
 
 		try {
 			ImageIcon img = new ImageIcon("resources/images/icon.png");
-			String Name = JOptionPane.showInputDialog(null,"Please enter your name : ",
-					"Name",JOptionPane.QUESTION_MESSAGE);
+			String Name = getName();
+			while (Name.isEmpty()){
+				JOptionPane.showMessageDialog(null, "Name field cannot be empty", "Error" , JOptionPane.ERROR_MESSAGE);
+				Name = getName();
+			}
 			Vector<String> levels = new Vector<>();
 			mSocket = new Socket(serverAddress, port);
 			fromServerStream = mSocket.getInputStream();
@@ -29,6 +35,9 @@ public class Main {
 			writer.println("getLevels");
 			for (String line = reader.readLine(); !line.equals("Done"); line = reader.readLine()) {
 				levels.add("Level " + line);
+			}
+			if(levels.isEmpty()){
+				JOptionPane.showMessageDialog(null, "Sorry no levels added yet", "Error" , JOptionPane.ERROR_MESSAGE);
 			}
 			String level = (String) JOptionPane.showInputDialog(null,"Which level do you want to enter : " ,
 					"Level", JOptionPane.QUESTION_MESSAGE, img, levels.toArray(),levels.toArray()[0]);
