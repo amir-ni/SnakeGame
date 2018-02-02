@@ -1,2 +1,2 @@
 # SnakeGame
-Java grid layout snake game
+Java snake game
