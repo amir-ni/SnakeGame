@@ -14,7 +14,7 @@ public class GameLayout extends JPanel implements KeyListener {
     ArrayList<Integer> obstacles = new ArrayList<>();
 
     private final Color worm = new Color(139, 61, 12);
-	private char direction = 'r';
+	private char direction;
 	private char bufdir = ' ';
 	private int length;
 	private int xsnake;
@@ -92,6 +92,7 @@ public class GameLayout extends JPanel implements KeyListener {
             writer.println(level);
 			this.size = Integer.parseInt(reader.readLine());
             this.startLengh = Integer.parseInt(reader.readLine());
+            this.direction =  reader.readLine().charAt(0);
             String inputLine = reader.readLine();
             xsnake = Integer.parseInt(inputLine.split(" ")[0]);
             ysnake = Integer.parseInt(inputLine.split(" ")[1]);

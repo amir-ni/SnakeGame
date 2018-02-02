@@ -38,6 +38,7 @@ public class Server {
                             Scanner scanner = new Scanner(tmpDir);
                             writer.println(scanner.nextInt());
                             writer.println(scanner.nextInt());
+                            writer.println(scanner.next());
                             while (scanner.hasNextInt()) {
                                 writer.println(scanner.nextInt() + " " + scanner.nextInt());
                             }
