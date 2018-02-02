@@ -35,7 +35,7 @@ public class GameLayout extends JPanel implements KeyListener {
     DataInputStream reader;
     PrintWriter writer;
     JLabel apple = new JLabel();
-
+	JLabel head = new JLabel();
     public class trap extends JLabel{
     	trap(){
 			Dimension newDim = new Dimension(40, 40);
@@ -60,6 +60,17 @@ public class GameLayout extends JPanel implements KeyListener {
         this.level = level;
 		Dimension newDim = new Dimension(40, 40);
         try {
+
+			head.setMaximumSize(newDim);
+			head.setPreferredSize(newDim);
+			head.setMaximumSize(newDim);
+			head.setSize(newDim);
+			BufferedImage imaged = ImageIO.read(new File("resources/images/head.png"));
+			Image ddimg = imaged.getScaledInstance(40, 40,
+					Image.SCALE_SMOOTH);
+			head.setIcon(new ImageIcon(ddimg));
+
+
 			apple.setMaximumSize(newDim);
 			apple.setPreferredSize(newDim);
 			apple.setMaximumSize(newDim);
@@ -229,6 +240,7 @@ public class GameLayout extends JPanel implements KeyListener {
 			}
 		}
 		pixel[xsnake][ysnake].setBackground(Color.WHITE);
+		pixel[xsnake][ysnake].add(head);
 	}
 
     private void makeApple() {
@@ -239,7 +251,6 @@ public class GameLayout extends JPanel implements KeyListener {
 		}else {
 			pixel[x][y].setApple(true);
 			pixel[x][y].add(apple);
-			System.out.println(x+ " " + y);
 		}
 	}
 
